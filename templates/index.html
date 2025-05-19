@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Senhas Seguras</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Fira+Code&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-lock"></i> Gerador de Senhas Seguras</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="length"><i class="fas fa-ruler"></i> Tamanho da senha:</label>
+                <input type="number" id="length" min="4" max="64" value="12">
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="uppercase" checked>
+                <label for="uppercase"><i class="fas fa-font"></i> Letras maiúsculas (A-Z)</label>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="lowercase" checked>
+                <label for="lowercase"><i class="fas fa-font"></i> Letras minúsculas (a-z)</label>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="digits" checked>
+                <label for="digits"><i class="fas fa-hashtag"></i> Números (0-9)</label>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="special_chars" checked>
+                <label for="special_chars"><i class="fas fa-exclamation"></i> Caracteres especiais (!@#$% etc.)</label>
+            </div>
+            
+            <button id="generate-btn">
+                <i class="fas fa-key"></i> Gerar Senha
+            </button>
+        </div>
+        
+        <div class="result">
+            <label for="password"><i class="fas fa-keyboard"></i> Sua senha segura:</label>
+            <input type="text" id="password" readonly>
+            <button id="copy-btn">
+                <i class="far fa-copy"></i> Copiar
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generate-btn').addEventListener('click', function() {
+            const length = document.getElementById('length').value;
+            const uppercase = document.getElementById('uppercase').checked;
+            const lowercase = document.getElementById('lowercase').checked;
+            const digits = document.getElementById('digits').checked;
+            const special_chars = document.getElementById('special_chars').checked;
+            
+            fetch('/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    length: length,
+                    uppercase: uppercase,
+                    lowercase: lowercase,
+                    digits: digits,
+                    special_chars: special_chars
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('password').value = data.password;
+            });
+        });
+        
+        document.getElementById('copy-btn').addEventListener('click', function() {
+            const passwordField = document.getElementById('password');
+            passwordField.select();
+            document.execCommand('copy');
+            
+            const copyBtn = document.getElementById('copy-btn');
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+            copyBtn.style.backgroundColor = '#00b894';
+            
+            setTimeout(() => {
+                copyBtn.innerHTML = '<i class="far fa-copy"></i> Copiar';
+                copyBtn.style.backgroundColor = '';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
